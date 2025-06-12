@@ -99,6 +99,7 @@ export default config;
 
 // 模板：manifest.json
 export const manifestJsonTemplate = `{
+    "$schema": "https://github.com/ENIAC-Tech/flexcli/raw/refs/heads/master/src/assets/manifest_schema.json",
     "name": "{{name}}",
     "uuid": "{{uuid}}",
     "version": "{{version}}",
