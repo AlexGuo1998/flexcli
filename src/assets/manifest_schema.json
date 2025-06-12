@@ -1,80 +1,530 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "properties": {
-      "name": { "type": "string" },
-      "version": { "type": "string" },
-      "author": { "type": "string" },
-      "entry": { "type": "string" },
-      "description": { "type": "string" },
-      "repo": { "type": "string" },
-      "sdk": {
-        "type": "object",
-        "properties": {
-          "version": { "type": "string" }
-        },
-        "required": ["version"]
-      },
-      "software": {
-        "type": "object",
-        "properties": {
-          "minimumVersion": { "type": "string" }
-        },
-        "required": ["minimumVersion"]
-      },
-      "os": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "platform": { "type": "string" },
-            "minimumVersion": { "type": "string" }
-          },
-          "required": ["platform", "minimumVersion"]
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "name": {
+      "title": "Plugin name",
+      "type": "string",
+      "examples": ["MyPlugin"]
+    },
+    "uuid": {
+      "title": "Plugin UUID",
+      "description": "Plugin UUID, in reverse domain format.",
+      "type": "string",
+      "examples": ["com.author.myplugin"]
+    },
+    "version": {
+      "title": "Plugin version",
+      "description": "Plugin version number, must be in x.x.x format",
+      "type": "string",
+      "examples": ["1.0.0"]
+    },
+    "author": {
+      "title": "Plugin author",
+      "type": "string",
+      "examples": ["Author"]
+    },
+    "entry": {
+      "title": "Plugin entry",
+      "description": "Plugin backend entry, the compiled Node.js script relative to the plugin root.",
+      "type": "string",
+      "examples": ["backend/plugin.cjs"]
+    },
+    "description": {
+      "title": "Plugin description",
+      "type": "string",
+      "examples": ["My Plugin Description"]
+    },
+    "repo": {
+      "title": "Plugin git repo",
+      "description": "Plugin’s repository. It must be hosted on a Git repository to enable automatic downloads and updates.",
+      "type": "string",
+      "examples": ["https://github.com/ENIAC-Tech/Plugin-Example"]
+    },
+    "sdk": {
+      "title": "Plugin SDK version",
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
         }
       },
-      "keyLibrary": {
+      "required": ["version"],
+      "examples": [{"version": "1.0.0"}]
+    },
+    "software": {
+      "title": "Supported FlexDesigner information",
+      "type": "object",
+      "properties": {
+        "minimumVersion": {
+          "title": "Minimal FlexDesigner version for the plugin",
+          "type": "string"
+        }
+      },
+      "required": ["minimumVersion"],
+      "examples": [{"minimumVersion": "1.0.0"}]
+    },
+    "os": {
+      "title": "Supported operation system information",
+      "type": "array",
+      "items": {
+        "title": "Operation system",
+        "description": "Each item is a supported operation system",
         "type": "object",
         "properties": {
-          "title": { "type": "string" },
-          "style": {
-            "type": "object",
-            "properties": {
-              "icon": { "type": "string" }
-            },
-            "required": ["icon"]
+          "platform": {
+            "enum": ["windows", "mac", "linux"]
           },
-          "children": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "title": { "type": "string" },
-                "cid": { "type": "string" },
-                "style": {
-                  "type": "object",
-                  "properties": {
-                    "icon": { "type": "string" },
-                    "width": { "type": "integer" }
-                  },
-                  "required": ["icon", "width"]
-                },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "path": { "type": "string" },
-                    "win": { "type": "array" }
-                  }
-                }
-              },
-              "required": ["title", "cid", "style", "data"]
-            }
+          "minimumVersion": {
+            "type": "string"
           }
         },
-        "required": ["title", "style"]
+        "required": ["platform", "minimumVersion"]
       },
-      "uuid": { "type": "string" }
+      "examples": [
+        [
+          {"platform": "mac", "minimumVersion": "10.15"},
+          {"platform": "windows", "minimumVersion": "10"}
+        ]
+      ]
     },
-    "required": ["name", "version", "author", "entry", "description", "sdk", "software", "os", "keyLibrary", "uuid"]
-  }
-  
+    "device": {
+      "title": "Supported devices",
+      "type": "array",
+      "items": {
+        "title": "Device",
+        "description": "Each item is a supported device",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": ["name", "version"]
+      },
+      "examples": [
+        [
+          {"name": "flexbar", "version": "1.0.0"}
+        ]
+      ]
+    },
+    "configPage": {
+      "title": "Plugin config page",
+      "description": "Points to a .vue file in the ui folder, exclude the '.vue' suffix. This can be left blank. If specified, your plugin's settings page will appear in the global settings.",
+      "type": "string",
+      "examples": [
+        "",
+        "global_config"
+      ]
+    },
+    "shortcuts": {
+      "title": "Shortcuts",
+      "description": "Register one or more shortcuts. Use `plugin.updateShortcuts` for dynamic ones. Find available shortcuts: https://www.electronjs.org/docs/latest/api/accelerator",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "examples": [
+        [],
+        ["CommandOrControl+F1"]
+      ]
+    },
+    "keyLibrary": {
+      "title": "Key Library",
+      "description": "Describes the keys included in the plugin. It is technically a `page`.",
+      "$ref": "#/$defs/page"
+    },
+    "local": {
+      "title": "Localization data",
+      "description": "Multi-language resources. Text starting with $ in the keyLibrary section or used with $t in .vue files is looked up here. The value can be a string or a recursive object",
+      "type": "object",
+      "propertyNames": {
+        "title": "Locale name",
+        "enum": ["en", "de", "fr", "ja", "zh-CN", "zh-HK", "ko"]
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/localDict"
+      },
+      "examples": [
+        {
+          "en": {
+            "hello": "Hello ($hello)",
+            "nested": {"hello": "Nested hello ($nested.hello)"}
+          },
+          "zh-CN": {
+            "hello": "你好",
+            "nested": {"hello": "嵌套的你好"}
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "color": {
+      "description": "Color in the '#rrggbb' format.",
+      "type": "string",
+      "pattern": "^#[0-9a-fA-F]{6}$"
+    },
+    "position": {
+      "description": "Position in percentages.",
+      "type": "object",
+      "properties": {
+        "X": {"type": "number"},
+        "Y": {"type": "number"}
+      },
+      "required": ["X", "Y"]
+    },
+    "styleWithoutWidth": {
+      "title": "Key style",
+      "description": "The appearance of a key",
+      "type": "object",
+      "properties": {
+        "icon": {
+          "title": "Key icon",
+          "description": "Icon for the key. Can be an MDI icon (https://pictogrammers.com/library/mdi/) or a PNG in base64 data url format.",
+          "type": "string",
+          "pattern": "^mdi mdi-[\\w-]+$|^data:image/png;base64,iVBORw0KGg[o-r][A-Za-z0-9+/]+={0,2}$"
+        },
+        "emoji": {
+          "title": "Key emoji",
+          "description": "An emoji for the key.",
+          "type": "string"
+        },
+        "width": {
+          "title": "Key width",
+          "description": "Width of the key",
+          "type": "integer"
+        },
+        "flags": {
+          "title": "Key flags",
+          "description": "Controls more detailed interaction behaviors, such as disabling background editing. Check the documentation for detail.",
+          "type": "array",
+          "items": {
+            "enum": ["disable-bg", "disable-fg", "disable-func", "disable-common", "disable-bg-styles", "disable-icon-sel", "disable-layout-sel"]
+          }
+        },
+        "bgColor": {
+          "title": "Background color",
+          "$ref": "#/$defs/color"
+        },
+        "fgColor": {
+          "title": "Foreground color",
+          "$ref": "#/$defs/color"
+        },
+        "borderStyle": {
+          "title": "Border style",
+          "enum": ["solid", "dotted", "double", "3d"]
+        },
+        "borderWidth": {
+          "title": "Border width",
+          "type": "integer"
+        },
+        "borderColor": {
+          "title": "Border color",
+          "$ref": "#/$defs/color"
+        },
+        "font": {
+          "title": "Font for the key title",
+          "type": "string"
+        },
+        "fontSize": {
+          "title": "Font size for the key title",
+          "type": "integer"
+        },
+        "iconSize": {
+          "title": "Icon size",
+          "type": "integer"
+        },
+        "iconPos": {
+          "title": "Icon position",
+          "$ref": "#/$defs/position"
+        },
+        "titlePos": {
+          "title": "Title position",
+          "$ref": "#/$defs/position"
+        },
+        "titleRotate": {
+          "title": "Title rotation",
+          "description": "Rotation angle for the title",
+          "type": "integer"
+        },
+        "iconRotate": {
+          "title": "Icon rotation",
+          "description": "Rotation angle for the icon",
+          "type": "integer"
+        },
+        "foregroundOutline": {
+          "description": "Whether to add a shadow to the icon and title",
+          "type": "boolean"
+        },
+        "showIcon": {
+          "description": "Whether to display the icon",
+          "type": "boolean"
+        },
+        "showEmoji": {
+          "description": "Whether to display an emoji",
+          "type": "boolean"
+        },
+        "showTitle": {
+          "description": "Whether to display the title",
+          "type": "boolean"
+        },
+        "showImage": {
+          "description": "Whether to display an image",
+          "type": "boolean"
+        },
+        "image": {
+          "description": "A PNG in base64 data url format, valid only if showImage is true",
+          "type": "string",
+          "pattern": "^data:image/png;base64,iVBORw0KGg[o-r][A-Za-z0-9+/]+={0,2}$"
+        }
+      },
+      "required": ["icon"]
+    },
+    "style": {
+      "$ref": "#/$defs/styleWithoutWidth",
+      "type": "object",
+      "required": ["width"]
+    },
+    "keyOrPage": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "title": "Key title",
+          "description": "The user visible title in the key library. Supports multi-language text starting with $",
+          "type": "string"
+        },
+        "tip": {
+          "title": "Key description",
+          "description": "Brief description of the key, visible on hover. Supports multi-language text starting with $",
+          "type": "string"
+        },
+        "cid": {
+          "title": "Key cid",
+          "description": "Class ID, must follow plugin-uuid.<key-id> format and be unique.",
+          "type": "string"
+        },
+        "style": {
+          "$ref": "#/$defs/style"
+        }
+      },
+      "required": ["title", "cid", "style"],
+      "oneOf": [
+        {"$ref": "#/$defs/key"},
+        {"$ref": "#/$defs/page"}
+      ]
+    },
+    "page": {
+      "title": "Page",
+      "description": "A group of keys.",
+      "type": "object",
+      "properties": {
+        "cid": {"const": "com.eniac.navigation.page"},
+        "children": {
+          "title": "Page children",
+          "description": "The keys in the page.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/keyOrPage"
+          }
+        }
+      },
+      "required": ["children"]
+    },
+    "key": {
+      "title": "Key",
+      "type": "object",
+      "properties": {
+        "cid": {
+          "type": "string",
+          "pattern": "^(?!com\\.eniac\\.navigation\\.page$)"
+        },
+        "config": {
+          "title": "Key config",
+          "description": "Config for the key. Accepted items are different for each `keyType`.",
+          "type": "object",
+          "properties": {
+            "keyType": {
+              "title": "Key type",
+              "description": "The type for the key.",
+              "enum": ["default", "multiState", "slider", "wheel"]
+            },
+            "platform": {
+              "title": "Key platform",
+              "description": "Supported OS / platform for the key.",
+              "type": "array",
+              "items": {
+                "enum": ["windows", "mac", "linux"]
+              }
+            }
+          },
+          "required": ["keyType"]
+        },
+        "data": {
+          "title": "Key data",
+          "description": "Default data for the key. Accessible as the `modelValue.config` object on the frontend, or `KeyData.data` at runtime.",
+          "type": "object"
+        }
+      },
+      "not": {
+        "required": ["children"]
+      },
+      "required": ["config", "data"],
+      "oneOf": [
+        {"$ref": "#/$defs/keyDefault"},
+        {"$ref": "#/$defs/keyMultiState"},
+        {"$ref": "#/$defs/keySlider"},
+        {"$ref": "#/$defs/keyWheel"}
+      ]
+    },
+    "keyDefault": {
+      "description": "A normal key.",
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "object",
+          "properties": {
+            "keyType": {"const": "default"},
+            "clickable": {
+              "description": "Whether the key is clickable. If clicked, it sends the key data to the plugin backend. If not clickable, it’s typically used for static displays (e.g., weather info).",
+              "type": "boolean"
+            }
+          },
+          "required": ["clickable"]
+        }
+      }
+    },
+    "keyMultiState": {
+      "description": "A key with multiple states.",
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "object",
+          "properties": {
+            "keyType": {"const": "multiState"}
+          }
+        },
+        "style": {
+          "type": "object",
+          "properties": {
+            "multiStyle": {
+              "title": "Styles",
+              "description": "Specifies the default style for each state in multiStyle; each entry supports all settings from the style section.",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/styleWithoutWidth"
+              }
+            }
+          },
+          "required": ["multiStyle"]
+        }
+      }
+    },
+    "keySlider": {
+      "description": "A key with a slider.",
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "object",
+          "properties": {
+            "keyType": {"const": "slider"}
+          }
+        },
+        "style": {
+          "type": "object",
+          "properties": {
+            "slider": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "title": "Slider theme color",
+                  "$ref": "#/$defs/color"
+                },
+                "width": {
+                  "title": "Slider width",
+                  "description": "Slider width, cannot exceed the key width.",
+                  "type": "number"
+                },
+                "format": {
+                  "title": "Slider value format",
+                  "description": "Value display format, supports C-style formatting",
+                  "type": "string",
+                  "examples": [
+                    "%0.1f %%"
+                  ]
+                },
+                "min": {
+                  "title": "Minimum value",
+                  "type": "number"
+                },
+                "max": {
+                  "title": "Maximum value",
+                  "type": "number"
+                },
+                "decimals": {
+                  "title": "Number of decimal places",
+                  "type": "number"
+                }
+              },
+              "required": ["color", "width", "format", "min", "max", "decimals"]
+            }
+          },
+          "required": ["slider"]
+        }
+      }
+    },
+    "keyWheel": {
+      "description": "A key with a wheel.",
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "object",
+          "properties": {
+            "keyType": {"const": "wheel"}
+          }
+        },
+        "style": {
+          "type": "object",
+          "properties": {
+            "wheel": {
+              "type": "object",
+              "properties": {
+                "step": {
+                  "title": "Wheel sensitivity",
+                  "description": "Sets the wheel sensitivity; it triggers once every n steps",
+                  "type": "number"
+                }
+              },
+              "required": ["step"]
+            }
+          },
+          "required": ["wheel"]
+        }
+      }
+    },
+    "localDict": {
+      "type": "object",
+      "additionalProperties": {
+        "oneOf": [
+          {"type": "string"},
+          {"$ref": "#/$defs/localDict"}
+        ]
+      }
+    }
+  },
+  "required": [
+    "name",
+    "uuid",
+    "version",
+    "author",
+    "entry",
+    "description",
+    "sdk",
+    "software",
+    "os",
+    "keyLibrary"
+  ]
+}

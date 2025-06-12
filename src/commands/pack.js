@@ -6,16 +6,15 @@ import logger from '../utils/logger.js';
 import Ajv from 'ajv';
 import manifestSchema from '../assets/manifest_schema.json' with { type: 'json' };
 
-
-const ajv = new Ajv();
-const validateManifest = ajv.compile(manifestSchema);
-
 /**
  * Handles the 'pack' command.
  * @param {WebSocketClient} wsClient - The WebSocket client instance.
  * @param {Object} options - The command options.
  */
 export default async function packCommand(wsClient, options) {
+  const ajv = new Ajv();
+  const validateManifest = ajv.compile(manifestSchema);
+
   const { path: pluginPath } = options;
   const pluginDir = path.resolve(pluginPath);
 
